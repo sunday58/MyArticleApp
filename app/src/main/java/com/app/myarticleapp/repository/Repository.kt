@@ -6,8 +6,10 @@ import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
 import com.app.myarticleapp.localStorage.ArticleDao
 import com.app.myarticleapp.utils.DataState
 import com.skydoves.sandwich.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -47,15 +49,12 @@ class Repository
                 }
             }
             response.suspendOnException {
-                if (exception.message!!.contains("Unable to resolve host")) {
-                    emit(DataState.OtherError("we are unable to process your request, please try again later"))
-                }else{
-                    Log.d("message", exception.message!!)
-                    emit(DataState.Error(exception))
-                }
-
+                emit(DataState.Error(exception))
             }
-
         }
+
+    suspend fun fetchArticles() = withContext(Dispatchers.IO){
+        articleDao.get()
+    }
 
     }

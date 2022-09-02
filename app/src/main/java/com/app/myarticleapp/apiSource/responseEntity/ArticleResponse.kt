@@ -2,6 +2,7 @@ package com.app.myarticleapp.apiSource.responseEntity
 
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.app.myarticleapp.apiSource.converter.ArticleConverter
 import com.app.myarticleapp.apiSource.converter.MediaArticleConverter
@@ -11,6 +12,7 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "article_table")
 data class ArticleResponse(
     @SerializedName("copyright") val copyright: String = "",
+    @PrimaryKey
     @SerializedName("num_results") val numResults: Int = 0,
     @SerializedName("results")
     @TypeConverters(ArticleConverter::class) val results: List<Result> = listOf(),

@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.app.myarticleapp.apiSource.responseEntity.Result
 import com.app.myarticleapp.databinding.ArticleListItemBinding
-import okhttp3.internal.notifyAll
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,6 +25,7 @@ class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClick
 
     private val items = ArrayList<Result>()
 
+    @SuppressLint("NotifyDataSetChanged")
     fun filter(text: String) {
         var text = text
         items.clear()
@@ -40,7 +40,7 @@ class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClick
                 }
             }
         }
-        notifyAll()
+        notifyDataSetChanged()
     }
 
 

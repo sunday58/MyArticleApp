@@ -2,8 +2,8 @@ package com.app.myarticleapp.ui
 
 import android.app.Dialog
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -15,13 +15,15 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.app.myarticleapp.BuildConfig
 import com.app.myarticleapp.R
 import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
 import com.app.myarticleapp.apiSource.responseEntity.Result
 import com.app.myarticleapp.databinding.ActivityMainBinding
 import com.app.myarticleapp.ui.adapters.ArticleAdapter
-import com.app.myarticleapp.utils.Constants
 import com.app.myarticleapp.utils.DataState
+import com.app.myarticleapp.utils.alertInternet
+import com.app.myarticleapp.utils.isInternetAvailable
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -31,15 +33,14 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
     private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: ArticleAdapter
 
+    private var items = ArrayList<Result>()
+
     private lateinit var dialog: Dialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        }
         setSupportActionBar(binding.actionBar)
         dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -47,14 +48,13 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
         subscribeObservers()
     }
 
-
     private fun subscribeObservers(){
-        val days = "7"
-        val key = getString(R.string.article_key)
+        val days = "30"
+        val key = BuildConfig.API_KEY
 
-        viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key)
+        displayProgressBar(true)
+        viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key){}
         viewModel.dataState.observe(this, { dataState ->
-            run {
                 when (dataState) {
                     is DataState.Success<ArticleResponse> -> {
                         displayProgressBar(false)
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
                     }
                     is DataState.Error -> {
                         displayProgressBar(false)
-                        displayError(dataState.exception.message) { subscribeObservers() }
+                        getCacheArticles(dataState.exception.localizedMessage.orEmpty())
                     }
 
                     is DataState.Loading -> {
@@ -74,8 +74,26 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
                         displayError(dataState.error) { subscribeObservers() }
                     }
                 }
-            }
         })
+    }
+
+    private fun getCacheArticles(message: String){
+        viewModel.cachedArticles { response ->
+            if (response != null){
+                if (response.results.isNullOrEmpty()){
+                    displayError(message) { subscribeObservers() }
+                }else{
+                    items.clear()
+                    response.results.forEach {
+                        items.addAll(listOf(it))
+                    }
+                    Log.d("normal", "${items.size}")
+                    initAdapter(items)
+                }
+            }else{
+                binding.root.context.alertInternet(binding.root.context)
+            }
+        }
     }
 
     private fun displayProgressBar(isDisplay: Boolean){
@@ -108,9 +126,9 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
     }
 
     private fun initAdapter(item: List<Result>){
-        binding.weatherRecyclerview.layoutManager = LinearLayoutManager(binding.root.context)
+        binding.articleRecyclerview.layoutManager = LinearLayoutManager(binding.root.context)
         adapter = ArticleAdapter(item, this)
-        binding.weatherRecyclerview.adapter = adapter
+        binding.articleRecyclerview.adapter = adapter
     }
 
     private fun displayError(message: String?, callback: () -> Unit){

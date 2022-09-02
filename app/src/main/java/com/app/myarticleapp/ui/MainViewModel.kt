@@ -8,9 +8,9 @@ import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
 import com.app.myarticleapp.repository.Repository
 import com.app.myarticleapp.utils.DataState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,13 +26,17 @@ constructor(
     val dataState: LiveData<DataState<ArticleResponse>>
     get() = _dataState
 
-    fun setStateEvent(mainStateEvent: MainStateEvent, days: String, key: String){
+    private val viewJob = Job()
+    private val coroutineJob = CoroutineScope(viewJob + Dispatchers.Main)
+
+    fun setStateEvent(mainStateEvent: MainStateEvent, days: String, key: String, result: (DataState<ArticleResponse>) -> Unit){
         viewModelScope.launch {
             when(mainStateEvent){
                 is MainStateEvent.GetArticleEvents -> {
                     mainRepository.getArticle(days, key)
                         .onEach { dataState ->
                             _dataState.value = dataState
+                            result(dataState)
                         }
                         .launchIn(viewModelScope)
                 }
@@ -41,6 +45,17 @@ constructor(
                 }
             }
         }
+    }
+
+    fun cachedArticles(result: (ArticleResponse?) -> Unit){
+        coroutineJob.launch {
+            result(mainRepository.fetchArticles())
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        coroutineJob.cancel()
     }
 
 }

@@ -7,4 +7,5 @@
     <string name="issues_message">we are unable to display articles at the moment, please try again later</string>
     <string name="internet_issues">No internet connection</string>
     <string name="article_key">zR3cNieqfQAuLsmyDxbRpoEhbVnOF9cT</string>
+    <string name="offline">Offline</string>
 </resources>

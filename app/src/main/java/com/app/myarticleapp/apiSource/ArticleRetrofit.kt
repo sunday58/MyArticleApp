@@ -9,7 +9,7 @@ import retrofit2.http.Query
 
 interface ArticleRetrofit {
 
-    @GET("viewed/{days}")
+    @GET("viewed/{days}.json")
     suspend fun articles(@Path("days") value: String,
                         @Query("api-key") key: String): ApiResponse<ArticleResponse>
 }

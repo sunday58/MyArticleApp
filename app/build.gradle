@@ -16,6 +16,11 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+        buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
     }
 
     buildTypes {
@@ -52,7 +57,6 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.38.1"
     kapt "com.google.dagger:hilt-compiler:2.38.1"
 
-    implementation 'androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03'
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     def retrofit_version = "2.9.0"
