@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">MyArticleApp</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="retry">Retry</string>
+    <string name="server_error">Server Error</string>
+    <string name="problem_occured">A problem occurred</string>
+    <string name="issues_message">we are unable to display articles at the moment, please try again later</string>
+    <string name="internet_issues">No internet connection</string>
+    <string name="article_key">zR3cNieqfQAuLsmyDxbRpoEhbVnOF9cT</string>
 </resources>

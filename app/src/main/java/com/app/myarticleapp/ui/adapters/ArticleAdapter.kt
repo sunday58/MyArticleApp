@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.app.myarticleapp.apiSource.responseEntity.Result
-import com.bumptech.glide.Glide
+import com.app.myarticleapp.databinding.ArticleListItemBinding
 import okhttp3.internal.notifyAll
 import java.text.DateFormat
 import java.text.SimpleDateFormat
@@ -15,8 +15,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class WeatherAdapter (private  val listItem: List<Result>, listener: OnItemClickListener):
-    RecyclerView.Adapter<WeatherAdapter.WeatherViewModel>(){
+class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClickListener):
+    RecyclerView.Adapter<ArticleAdapter.WeatherViewModel>(){
 
     private var listener: OnItemClickListener? = null
 
@@ -34,7 +34,7 @@ class WeatherAdapter (private  val listItem: List<Result>, listener: OnItemClick
         } else {
             text = text.lowercase()
             for (item in listItem) {
-                if (item.name.lowercase().contains(text)
+                if (item.title.lowercase().contains(text)
                 ) {
                     items.add(item)
                 }
@@ -45,7 +45,7 @@ class WeatherAdapter (private  val listItem: List<Result>, listener: OnItemClick
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherViewModel {
-        val binding = WeatherListItemBinding
+        val binding = ArticleListItemBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
         return WeatherViewModel(binding)
     }
@@ -67,21 +67,7 @@ class WeatherAdapter (private  val listItem: List<Result>, listener: OnItemClick
                 // for time
                 val time = Date(System.currentTimeMillis())
                 val  timeFormat = (SimpleDateFormat("HH:mm aaa", Locale.ENGLISH).format(time))
-                binding.textView3.text = "$goal  ${FormatDate.getFormattedFullDateString(strDate)}"
-                binding.textView4.text = timeFormat
-                binding.textView5.text = main.temp.toString() + " \u2103"
-                binding.textView2.text = name
-
-
-                if (timeFormat.contains("PM")){
-                    Glide.with(itemView)
-                        .load(R.drawable.ic_night)
-                        .into(binding.imageView)
-                }else{
-                    Glide.with(itemView)
-                        .load(R.drawable.sunny)
-                        .into(binding.imageView)
-                }
+                binding.title.text = title
 
                 itemView.setOnClickListener {
                     listener?.onItemClick(position, items[position])
@@ -97,7 +83,7 @@ class WeatherAdapter (private  val listItem: List<Result>, listener: OnItemClick
 
     }
 
-    class WeatherViewModel(val binding: WeatherListItemBinding):
+    class WeatherViewModel(val binding: ArticleListItemBinding):
         ViewHolder(binding.root)
 
 }
