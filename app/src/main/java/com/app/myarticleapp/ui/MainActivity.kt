@@ -14,6 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.myarticleapp.BuildConfig
 import com.app.myarticleapp.R
@@ -25,6 +27,7 @@ import com.app.myarticleapp.utils.DataState
 import com.app.myarticleapp.utils.alertInternet
 import com.app.myarticleapp.utils.isInternetAvailable
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
@@ -54,7 +57,8 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
 
         displayProgressBar(true)
         viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key){}
-        viewModel.dataState.observe(this, { dataState ->
+        lifecycleScope.launchWhenCreated {
+            viewModel.dataState.collectLatest { dataState ->
                 when (dataState) {
                     is DataState.Success<ArticleResponse> -> {
                         displayProgressBar(false)
@@ -73,8 +77,10 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
                         displayProgressBar(false)
                         displayError(dataState.error) { subscribeObservers() }
                     }
+                    else -> {}
                 }
-        })
+            }
+        }
     }
 
     private fun getCacheArticles(message: String){

@@ -9,6 +9,8 @@ import com.app.myarticleapp.repository.Repository
 import com.app.myarticleapp.utils.DataState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -20,14 +22,8 @@ constructor(
     private val mainRepository: Repository,
 ): ViewModel(){
 
-
-
-    private val _dataState: MutableLiveData<DataState<ArticleResponse>> = MutableLiveData()
-    val dataState: LiveData<DataState<ArticleResponse>>
-    get() = _dataState
-
-    private val viewJob = Job()
-    private val coroutineJob = CoroutineScope(viewJob + Dispatchers.Main)
+    private val _dataState  = MutableStateFlow<DataState<ArticleResponse>?>(null)
+    val dataState = _dataState.asStateFlow()
 
     fun setStateEvent(mainStateEvent: MainStateEvent, days: String, key: String, result: (DataState<ArticleResponse>) -> Unit){
         viewModelScope.launch {
@@ -48,14 +44,9 @@ constructor(
     }
 
     fun cachedArticles(result: (ArticleResponse?) -> Unit){
-        coroutineJob.launch {
+        viewModelScope.launch {
             result(mainRepository.fetchArticles())
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        coroutineJob.cancel()
     }
 
 }
