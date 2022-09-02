@@ -1,8 +1,7 @@
 package com.app.myarticleapp.apiSource.converter
 
 import androidx.room.TypeConverter
-import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse.Result
-import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse.Result.Media
+import com.app.myarticleapp.apiSource.responseEntity.Media
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
