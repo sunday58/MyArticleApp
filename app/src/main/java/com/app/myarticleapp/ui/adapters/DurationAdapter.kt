@@ -37,7 +37,7 @@ class DurationAdapter (private  val listItem: List<Duration>, listener: OnItemCl
         with(holder){
             with(listItem[position]){
 
-                binding.duration.text = period
+                binding.duration.text = StringBuilder().append(period).append("day(s)")
 
                 itemView.setOnClickListener {
                     listener?.onItemClick(position, listItem[position])

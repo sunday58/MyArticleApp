@@ -59,6 +59,11 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
             subscribeObservers(days)
             subScribeRecentArticles()
         }
+
+        binding.refresh.setOnClickListener {
+            subscribeObservers(days)
+            subScribeRecentArticles()
+        }
     }
 
     private fun setData(){
@@ -73,6 +78,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         lifecycleScope.launchWhenCreated {
             viewModel.dataState.collectLatest { dataState ->
                 binding.internetCheck.visibility = View.GONE
+                binding.articleRecyclerview.visibility = View.VISIBLE
                 items.clear()
                 dataState?.results?.let { items.addAll(it) }
                 initAdapter()
@@ -118,6 +124,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
                         items.addAll(listOf(it))
                     }
                     binding.internetCheck.visibility = View.VISIBLE
+                    binding.articleRecyclerview.visibility = View.GONE
                     initRecentAdapter(items)
                 }
             }else{
