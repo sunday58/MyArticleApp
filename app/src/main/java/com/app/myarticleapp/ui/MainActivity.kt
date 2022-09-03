@@ -27,6 +27,7 @@ import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
 import com.app.myarticleapp.apiSource.responseEntity.Result
 import com.app.myarticleapp.databinding.ActivityMainBinding
 import com.app.myarticleapp.ui.adapters.ArticleAdapter
+import com.app.myarticleapp.ui.adapters.RecentArticleAdapter
 import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet
 import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet.Companion.PERIOD
 import com.app.myarticleapp.utils.DataState
@@ -39,14 +40,15 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
+class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, RecentArticleAdapter.OnItemClickListener {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
     private lateinit var adapter: ArticleAdapter
+    private lateinit var recentAdapter: RecentArticleAdapter
 
     private var items = ArrayList<Result>()
-    private var days = "7"
+    private var days = "30"
 
     private lateinit var dialog: Dialog
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +61,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         subscribeObservers(days)
+        subScribeRecentArticles()
         setData()
     }
 
@@ -78,6 +81,34 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
                         displayProgressBar(false)
                         initAdapter(dataState.data.results)
                         adapter.filter("")
+                    }
+                    is DataState.Error -> {
+                        displayProgressBar(false)
+                        getCacheArticles(dataState.exception.localizedMessage.orEmpty())
+                    }
+
+                    is DataState.Loading -> {
+                        displayProgressBar(true)
+                    }
+                    is DataState.OtherError -> {
+                        displayProgressBar(false)
+                        displayError(dataState.error) { subscribeObservers(days) }
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun subScribeRecentArticles(){
+        val key = BuildConfig.API_KEY
+        viewModel.setStateEvent(MainStateEvent.GetArticleEvents, "1", key){}
+        lifecycleScope.launchWhenCreated {
+            viewModel.dataState.collectLatest { dataState ->
+                when (dataState) {
+                    is DataState.Success<ArticleResponse> -> {
+                        displayProgressBar(false)
+                        initRecentAdapter(dataState.data.results)
                     }
                     is DataState.Error -> {
                         displayProgressBar(false)
@@ -158,6 +189,11 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
             LinearLayoutManager.HORIZONTAL, false)
         adapter = ArticleAdapter(item, this)
         binding.articleRecyclerview.adapter = adapter
+    }
+    private fun initRecentAdapter(item: List<Result>){
+        binding.recentRecyclerview.layoutManager = LinearLayoutManager(binding.root.context)
+        recentAdapter = RecentArticleAdapter(item, this)
+        binding.recentRecyclerview.adapter = recentAdapter
     }
 
     private fun displayError(message: String?, callback: () -> Unit){

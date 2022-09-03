@@ -9,14 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.app.myarticleapp.R
 import com.app.myarticleapp.apiSource.responseEntity.Result
-import com.app.myarticleapp.databinding.ArticleListItemBinding
-import com.app.myarticleapp.utils.dateFormater.FormatDate.getFormattedFullDateString
+import com.app.myarticleapp.databinding.RecentArticleItemsBinding
 import com.bumptech.glide.Glide
-import java.lang.Exception
 
 
-class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClickListener):
-    RecyclerView.Adapter<ArticleAdapter.WeatherViewModel>(){
+class RecentArticleAdapter (private  val listItem: List<Result>, listener: OnItemClickListener):
+    RecyclerView.Adapter<RecentArticleAdapter.WeatherViewModel>(){
 
     private var listener: OnItemClickListener? = null
 
@@ -24,29 +22,9 @@ class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClick
         this.listener = listener
     }
 
-    private val items = ArrayList<Result>()
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun filter(text: String) {
-        var text = text
-        items.clear()
-        if (text.isEmpty()) {
-            items.addAll(listItem)
-        } else {
-            text = text.lowercase()
-            for (item in listItem) {
-                if (item.title.lowercase().contains(text)
-                ) {
-                    items.add(item)
-                }
-            }
-        }
-        notifyDataSetChanged()
-    }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WeatherViewModel {
-        val binding = ArticleListItemBinding
+        val binding = RecentArticleItemsBinding
             .inflate(LayoutInflater.from(parent.context), parent, false)
         return WeatherViewModel(binding)
     }
@@ -54,10 +32,11 @@ class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClick
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: WeatherViewModel, position: Int) {
         with(holder){
-            with(items[position]){
+            with(listItem[position]){
                 binding.title.text = title
                 binding.source.text = source
                 binding.date.text = publishedDate
+                binding.byLine.text = byline
 
                 media.forEach { media ->
                      media.mediaMetadata.let {image ->
@@ -74,20 +53,20 @@ class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClick
                 }
 
                 itemView.setOnClickListener {
-                    listener?.onItemClick(position, items[position])
+                    listener?.onItemClick(position, listItem[position])
                 }
             }
         }
     }
 
-    override fun getItemCount() = items.size
+    override fun getItemCount() = 5
 
     interface OnItemClickListener{
         fun onItemClick(position: Int, item: Result)
 
     }
 
-    class WeatherViewModel(val binding: ArticleListItemBinding):
+    class WeatherViewModel(val binding: RecentArticleItemsBinding):
         ViewHolder(binding.root)
 
 }
