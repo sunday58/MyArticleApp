@@ -19,7 +19,7 @@ An app that displays list of Popular articles from The New York Times
 
 
 # How to Install and Run the Project
-*STEPS
+STEPS
 * Download or clone the project using this link https://github.com/sunday58/MyArticleApp.git.
 * Open the project using your favorite editor (Android Studio Preferable).
 * Allow the project to sync and download all dependencies.
