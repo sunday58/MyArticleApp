@@ -26,6 +26,8 @@ import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
 import com.app.myarticleapp.apiSource.responseEntity.Result
 import com.app.myarticleapp.databinding.ActivityMainBinding
 import com.app.myarticleapp.ui.adapters.ArticleAdapter
+import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet
+import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet.Companion.PERIOD
 import com.app.myarticleapp.utils.DataState
 import com.app.myarticleapp.utils.alertInternet
 import com.app.myarticleapp.utils.isInternetAvailable
@@ -40,6 +42,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
     private lateinit var adapter: ArticleAdapter
 
     private var items = ArrayList<Result>()
+    private var days = "7"
 
     private lateinit var dialog: Dialog
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,11 +54,10 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
         dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
-        subscribeObservers()
+        subscribeObservers(days)
     }
 
-    private fun subscribeObservers(){
-        val days = "30"
+    private fun subscribeObservers(days: String){
         val key = BuildConfig.API_KEY
 
         displayProgressBar(true)
@@ -78,7 +80,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
                     }
                     is DataState.OtherError -> {
                         displayProgressBar(false)
-                        displayError(dataState.error) { subscribeObservers() }
+                        displayError(dataState.error) { subscribeObservers(days) }
                     }
                     else -> {}
                 }
@@ -90,7 +92,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
         viewModel.cachedArticles { response ->
             if (response != null){
                 if (response.results.isNullOrEmpty()){
-                    displayError(message) { subscribeObservers() }
+                    displayError(message) { subscribeObservers(days) }
                 }else{
                     items.clear()
                     response.results.forEach {
@@ -121,7 +123,9 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
         searchView.requestFocusFromTouch()
 
         more.setOnMenuItemClickListener {
-            Toast.makeText(this, "item click", Toast.LENGTH_SHORT).show()
+            MoreNewsSheet{
+                duration(it)
+            }.show(supportFragmentManager, PERIOD)
             true
         }
 
@@ -180,4 +184,9 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
     override fun onItemClick(position: Int, item: Result) {
         Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT).show()
     }
+
+    private fun duration(period: String){
+        subscribeObservers(period)
+    }
+
 }

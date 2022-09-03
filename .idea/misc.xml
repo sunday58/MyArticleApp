@@ -11,7 +11,8 @@
         <entry key="app/src/main/res/layout/article_list_item.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/custom_dialog_error.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/dialog_internet_alert.xml" value="0.246875" />
-        <entry key="app/src/main/res/layout/fragment_more_news_sheet.xml" value="0.2328125" />
+        <entry key="app/src/main/res/layout/duration_item_list.xml" value="0.246875" />
+        <entry key="app/src/main/res/layout/fragment_more_news_sheet.xml" value="0.25" />
         <entry key="app/src/main/res/menu-v26/search_menu.xml" value="0.246875" />
         <entry key="app/src/main/res/menu/search_menu.xml" value="0.246875" />
       </map>

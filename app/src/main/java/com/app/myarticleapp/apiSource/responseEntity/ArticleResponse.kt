@@ -56,3 +56,7 @@ data class MediaMetadata(
     @SerializedName("width") val width: Int = 0
 )
 
+data class Duration(
+    val period: String
+)
+
