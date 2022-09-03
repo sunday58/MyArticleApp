@@ -19,8 +19,14 @@ constructor(
     private val mainRepository: Repository,
 ): ViewModel(){
 
-    private val _dataState  = MutableStateFlow<DataState<ArticleResponse>?>(null)
+    private val _dataState  = MutableStateFlow<ArticleResponse?>(null)
     val dataState = _dataState.asStateFlow()
+
+    private val _error  = MutableSharedFlow<String>()
+    val error = _error.asSharedFlow()
+
+    private val _loading  = MutableSharedFlow<Boolean>()
+    val loading = _loading.asSharedFlow()
 
     fun setStateEvent(mainStateEvent: MainStateEvent, days: String, key: String, result: (DataState<ArticleResponse>) -> Unit){
         viewModelScope.launch {
@@ -28,8 +34,24 @@ constructor(
                 is MainStateEvent.GetArticleEvents -> {
                     mainRepository.getArticle(days, key)
                         .onEach { dataState ->
-                            _dataState.value = dataState
-                            result(dataState)
+                            when (dataState) {
+                                is DataState.Success<ArticleResponse> -> {
+                                    _loading.emit(false)
+                                    _dataState.value = dataState.data
+                                    result(dataState)
+                                }
+                                is DataState.Error -> {
+                                    _loading.emit(false)
+                                    _error.emit(dataState.exception.toString())
+                                }
+                                is DataState.Loading -> {
+                                    _loading.emit(true)
+                                }
+                                is DataState.OtherError -> {
+                                    _loading.emit(false)
+                                    _error.emit(dataState.error)
+                                }
+                            }
                         }
                         .launchIn(viewModelScope)
                 }

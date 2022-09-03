@@ -30,6 +30,7 @@ import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet.Companion.PERIOD
 import com.app.myarticleapp.utils.DataState
 import com.app.myarticleapp.utils.alertInternet
 import com.app.myarticleapp.utils.dateFormater.FormatDate.getGreetingMessage
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 
@@ -70,28 +71,27 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key){}
         lifecycleScope.launchWhenCreated {
             viewModel.dataState.collectLatest { dataState ->
-                when (dataState) {
-                    is DataState.Success<ArticleResponse> -> {
-                        displayProgressBar(false)
-                        initAdapter(dataState.data.results)
-                        adapter.filter("")
-                    }
-                    is DataState.Error -> {
-                        displayProgressBar(false)
-                        getCacheArticles(dataState.exception.localizedMessage.orEmpty())
-                    }
-
-                    is DataState.Loading -> {
-                        displayProgressBar(true)
-                    }
-                    is DataState.OtherError -> {
-                        displayProgressBar(false)
-                        displayError(dataState.error) { subscribeObservers(days) }
-                    }
-                    else -> {}
-                }
+                displayProgressBar(false)
+                items.clear()
+                dataState?.results?.let { items.addAll(it) }
+                initAdapter()
+                adapter.filter("")
             }
         }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.error.collectLatest {
+                Snackbar.make(this@MainActivity, binding.root, it,
+                    Snackbar.LENGTH_LONG).show()
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            viewModel.loading.collectLatest {
+                displayProgressBar(it)
+            }
+        }
+
     }
 
     private fun subScribeRecentArticles(){
@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
                         items.addAll(listOf(it))
                     }
                     Log.d("normal", "${items.size}")
-                    initAdapter(items)
+                    initAdapter()
                 }
             }else{
                 binding.root.context.alertInternet(binding.root.context)
@@ -174,10 +174,10 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         return true
     }
 
-    private fun initAdapter(item: List<Result>){
+    private fun initAdapter(){
         binding.articleRecyclerview.layoutManager = LinearLayoutManager(binding.root.context,
             LinearLayoutManager.HORIZONTAL, false)
-        adapter = ArticleAdapter(item, this)
+        adapter = ArticleAdapter(items, this)
         binding.articleRecyclerview.adapter = adapter
     }
     private fun initRecentAdapter(item: List<Result>){
