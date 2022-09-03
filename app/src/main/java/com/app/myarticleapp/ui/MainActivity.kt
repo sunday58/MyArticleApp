@@ -1,8 +1,6 @@
 package com.app.myarticleapp.ui
 
-import android.app.Dialog
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,10 +8,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.Window
-import android.widget.Button
 import android.widget.SearchView
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -45,15 +40,12 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
     private var items = ArrayList<Result>()
     private var days = "30"
 
-    private lateinit var dialog: Dialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
         setSupportActionBar(binding.actionBar)
-        dialog = Dialog(this)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         subscribeObservers(days)
         subScribeRecentArticles()
@@ -67,11 +59,9 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
     private fun subscribeObservers(days: String){
         val key = BuildConfig.API_KEY
 
-        displayProgressBar(true)
         viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key){}
         lifecycleScope.launchWhenCreated {
             viewModel.dataState.collectLatest { dataState ->
-                displayProgressBar(false)
                 items.clear()
                 dataState?.results?.let { items.addAll(it) }
                 initAdapter()
@@ -81,8 +71,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
 
         lifecycleScope.launchWhenStarted {
             viewModel.error.collectLatest {
-                Snackbar.make(this@MainActivity, binding.root, it,
-                    Snackbar.LENGTH_LONG).show()
+                getCacheArticles(it)
             }
         }
 
@@ -97,23 +86,11 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
     private fun subScribeRecentArticles(){
         val key = BuildConfig.API_KEY
         viewModel.setStateEvent(MainStateEvent.GetArticleEvents, "1", key){dataState ->
-            when (dataState) {
+            when(dataState){
                 is DataState.Success<ArticleResponse> -> {
-                    displayProgressBar(false)
                     initRecentAdapter(dataState.data.results)
                 }
-                is DataState.Error -> {
-                    displayProgressBar(false)
-                    getCacheArticles(dataState.exception.localizedMessage.orEmpty())
-                }
-
-                is DataState.Loading -> {
-                    displayProgressBar(true)
-                }
-                is DataState.OtherError -> {
-                    displayProgressBar(false)
-                    displayError(dataState.error) { subscribeObservers(days) }
-                }
+                else -> {}
             }
         }
     }
@@ -122,13 +99,13 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         viewModel.cachedArticles { response ->
             if (response != null){
                 if (response.results.isNullOrEmpty()){
-                    displayError(message) { subscribeObservers(days) }
+                    Snackbar.make(this@MainActivity, binding.root, message,
+                        Snackbar.LENGTH_LONG).show()
                 }else{
                     items.clear()
                     response.results.forEach {
                         items.addAll(listOf(it))
                     }
-                    Log.d("normal", "${items.size}")
                     initAdapter()
                 }
             }else{
@@ -186,36 +163,6 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         binding.recentRecyclerview.adapter = recentAdapter
     }
 
-    private fun displayError(message: String?, callback: () -> Unit){
-        if (message != null){
-            showErrorDialog(getString(R.string.problem_occured), message, this){callback()}
-        }else{
-            showErrorDialog(getString(R.string.problem_occured),
-                getString(R.string.issues_message), this){callback()}
-        }
-    }
-
-
-    private fun showErrorDialog(titleMessage: String, descMessage: String, context: Context, retryMess: () -> Unit) {
-        dialog.setCancelable(false)
-        dialog.setContentView(R.layout.custom_dialog_error)
-        val dismiss = dialog.findViewById(R.id.btDismissCustomDialog) as Button
-        val title = dialog.findViewById(R.id.title) as TextView
-        val desc = dialog.findViewById(R.id.desc) as TextView
-        val retry = dialog.findViewById(R.id.retryCustomDialog) as Button
-
-        title.text = titleMessage
-        desc.text = descMessage
-        dismiss.setOnClickListener {
-            dialog.dismiss()
-        }
-        retry.setOnClickListener {
-            retryMess()
-            dialog.dismiss()
-        }
-        dialog.show()
-
-    }
 
     override fun onItemClick(position: Int, item: Result) {
         val packageName = item.url
