@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.myarticleapp.BuildConfig
 import com.app.myarticleapp.R
 import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
@@ -30,9 +31,12 @@ import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet
 import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet.Companion.PERIOD
 import com.app.myarticleapp.utils.DataState
 import com.app.myarticleapp.utils.alertInternet
+import com.app.myarticleapp.utils.dateFormater.FormatDate.getGreetingMessage
 import com.app.myarticleapp.utils.isInternetAvailable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import java.util.*
+import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
@@ -55,6 +59,11 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
 
         subscribeObservers(days)
+        setData()
+    }
+
+    private fun setData(){
+        binding.date.text = getGreetingMessage()
     }
 
     private fun subscribeObservers(days: String){
@@ -145,7 +154,8 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
     }
 
     private fun initAdapter(item: List<Result>){
-        binding.articleRecyclerview.layoutManager = LinearLayoutManager(binding.root.context)
+        binding.articleRecyclerview.layoutManager = LinearLayoutManager(binding.root.context,
+            LinearLayoutManager.HORIZONTAL, false)
         adapter = ArticleAdapter(item, this)
         binding.articleRecyclerview.adapter = adapter
     }

@@ -8,7 +8,7 @@
         <entry key="app/src/main/res/drawable/curve_frame.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/drawable/ic_baseline_search_24.xml" value="0.2630208333333333" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.246875" />
-        <entry key="app/src/main/res/layout/article_list_item.xml" value="0.246875" />
+        <entry key="app/src/main/res/layout/article_list_item.xml" value="0.375" />
         <entry key="app/src/main/res/layout/custom_dialog_error.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/dialog_internet_alert.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/duration_item_list.xml" value="0.246875" />
