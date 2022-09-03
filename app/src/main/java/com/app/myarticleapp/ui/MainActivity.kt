@@ -136,7 +136,6 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         binding.progressBar.visibility = if (isDisplay) View.VISIBLE else View.GONE
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
 
