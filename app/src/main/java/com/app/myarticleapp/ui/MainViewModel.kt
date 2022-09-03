@@ -28,6 +28,7 @@ constructor(
     private val _loading  = MutableSharedFlow<Boolean>()
     val loading = _loading.asSharedFlow()
 
+
     fun setStateEvent(mainStateEvent: MainStateEvent, days: String, key: String, result: (DataState<ArticleResponse>) -> Unit){
         viewModelScope.launch {
             when(mainStateEvent){

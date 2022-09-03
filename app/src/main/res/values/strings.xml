@@ -14,4 +14,5 @@
     <string name="recent_articles">Recent Articles</string>
     <string name="popular">Popular</string>
     <string name="please_check_your_internet">Please check your internet and tap to reload</string>
+    <string name="something_wrong">Something went wrong, exit the app and retry to launch again, if persist please contact support</string>
 </resources>

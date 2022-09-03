@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         val key = BuildConfig.API_KEY
 
         viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key){}
+        displayProgressBar(true)
         lifecycleScope.launchWhenCreated {
             viewModel.dataState.collectLatest { dataState ->
                 binding.internetCheck.visibility = View.GONE
@@ -120,7 +121,13 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
                     initRecentAdapter(items)
                 }
             }else{
-                binding.root.context.alertInternet(binding.root.context)
+                if (!isInternetAvailable(this)){
+                    binding.root.context.alertInternet(binding.root.context)
+                }else{
+                    Snackbar.make(this@MainActivity, binding.root,
+                        getString(R.string.something_wrong),
+                        Snackbar.LENGTH_LONG).show()
+                }
             }
         }
     }
