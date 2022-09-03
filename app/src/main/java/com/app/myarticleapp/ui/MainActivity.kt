@@ -2,6 +2,7 @@ package com.app.myarticleapp.ui
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -12,6 +13,8 @@ import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.asLiveData
@@ -110,11 +113,17 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
 
+        val more: MenuItem = menu.findItem(R.id.more)
         val searchItem: MenuItem = menu.findItem(R.id.search)
         val searchView = searchItem.actionView as SearchView
         searchView.isFocusable = true
         searchView.isIconified = false
         searchView.requestFocusFromTouch()
+
+        more.setOnMenuItemClickListener {
+            Toast.makeText(this, "item click", Toast.LENGTH_SHORT).show()
+            true
+        }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {

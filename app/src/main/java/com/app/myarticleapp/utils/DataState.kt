@@ -5,5 +5,4 @@ sealed class DataState<out R> {
     data class Error(val exception: Throwable): DataState<Nothing>()
     object Loading: DataState<Nothing>()
     data class OtherError(val error: String): DataState<Nothing>()
-
 }

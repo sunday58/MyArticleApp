@@ -9,4 +9,10 @@
         app:showAsAction="collapseActionView|ifRoom"
         app:actionViewClass="android.widget.SearchView"
         tools:ignore="UnusedAttribute" />
+
+    <item android:id="@+id/more"
+        android:title=""
+        android:icon="@drawable/ic_baseline_read_more_24"
+        app:showAsAction="collapseActionView|ifRoom"
+        tools:ignore="UnusedAttribute" />
 </menu>

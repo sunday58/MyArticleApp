@@ -14,6 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:gravity="center"
+        android:textColor="@color/white"
         tools:text="Try" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
