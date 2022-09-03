@@ -1,8 +1,10 @@
 package com.app.myarticleapp.ui
 
 import android.app.Dialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -12,15 +14,10 @@ import android.view.Window
 import android.widget.Button
 import android.widget.SearchView
 import android.widget.TextView
-import android.widget.Toast
-import androidx.activity.result.ActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.app.myarticleapp.BuildConfig
 import com.app.myarticleapp.R
 import com.app.myarticleapp.apiSource.responseEntity.ArticleResponse
@@ -33,11 +30,8 @@ import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet.Companion.PERIOD
 import com.app.myarticleapp.utils.DataState
 import com.app.myarticleapp.utils.alertInternet
 import com.app.myarticleapp.utils.dateFormater.FormatDate.getGreetingMessage
-import com.app.myarticleapp.utils.isInternetAvailable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
-import java.util.*
-import kotlin.collections.ArrayList
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, RecentArticleAdapter.OnItemClickListener {
@@ -102,27 +96,23 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
 
     private fun subScribeRecentArticles(){
         val key = BuildConfig.API_KEY
-        viewModel.setStateEvent(MainStateEvent.GetArticleEvents, "1", key){}
-        lifecycleScope.launchWhenCreated {
-            viewModel.dataState.collectLatest { dataState ->
-                when (dataState) {
-                    is DataState.Success<ArticleResponse> -> {
-                        displayProgressBar(false)
-                        initRecentAdapter(dataState.data.results)
-                    }
-                    is DataState.Error -> {
-                        displayProgressBar(false)
-                        getCacheArticles(dataState.exception.localizedMessage.orEmpty())
-                    }
+        viewModel.setStateEvent(MainStateEvent.GetArticleEvents, "1", key){dataState ->
+            when (dataState) {
+                is DataState.Success<ArticleResponse> -> {
+                    displayProgressBar(false)
+                    initRecentAdapter(dataState.data.results)
+                }
+                is DataState.Error -> {
+                    displayProgressBar(false)
+                    getCacheArticles(dataState.exception.localizedMessage.orEmpty())
+                }
 
-                    is DataState.Loading -> {
-                        displayProgressBar(true)
-                    }
-                    is DataState.OtherError -> {
-                        displayProgressBar(false)
-                        displayError(dataState.error) { subscribeObservers(days) }
-                    }
-                    else -> {}
+                is DataState.Loading -> {
+                    displayProgressBar(true)
+                }
+                is DataState.OtherError -> {
+                    displayProgressBar(false)
+                    displayError(dataState.error) { subscribeObservers(days) }
                 }
             }
         }
@@ -228,7 +218,12 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
     }
 
     override fun onItemClick(position: Int, item: Result) {
-        Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT).show()
+        val packageName = item.url
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(packageName)))
+        } catch (e: ActivityNotFoundException) {
+            Log.d("no browser", "")
+        }
     }
 
     private fun duration(period: String){
