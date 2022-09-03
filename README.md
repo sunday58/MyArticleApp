@@ -16,3 +16,6 @@ An app that displays list of Popular articles from The New York Times
 * Glide
 * Junit
 * Espresso
+
+
+# How to Install and Run the Project
