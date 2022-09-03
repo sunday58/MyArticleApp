@@ -13,4 +13,5 @@
     <string name="select_news_duration">Select News Duration</string>
     <string name="recent_articles">Recent Articles</string>
     <string name="popular">Popular</string>
+    <string name="please_check_your_internet">Please check your internet and tap to reload</string>
 </resources>

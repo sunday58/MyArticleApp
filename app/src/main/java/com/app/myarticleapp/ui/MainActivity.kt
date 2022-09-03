@@ -25,6 +25,7 @@ import com.app.myarticleapp.ui.bottom_sheet.MoreNewsSheet.Companion.PERIOD
 import com.app.myarticleapp.utils.DataState
 import com.app.myarticleapp.utils.alertInternet
 import com.app.myarticleapp.utils.dateFormater.FormatDate.getGreetingMessage
+import com.app.myarticleapp.utils.isInternetAvailable
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -50,6 +51,14 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         subscribeObservers(days)
         subScribeRecentArticles()
         setData()
+        reload()
+    }
+
+    private fun reload(){
+        binding.internetCheck.setOnClickListener {
+            subscribeObservers(days)
+            subScribeRecentArticles()
+        }
     }
 
     private fun setData(){
@@ -62,6 +71,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
         viewModel.setStateEvent(MainStateEvent.GetArticleEvents, days, key){}
         lifecycleScope.launchWhenCreated {
             viewModel.dataState.collectLatest { dataState ->
+                binding.internetCheck.visibility = View.GONE
                 items.clear()
                 dataState?.results?.let { items.addAll(it) }
                 initAdapter()
@@ -106,7 +116,8 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
                     response.results.forEach {
                         items.addAll(listOf(it))
                     }
-                    initAdapter()
+                    binding.internetCheck.visibility = View.VISIBLE
+                    initRecentAdapter(items)
                 }
             }else{
                 binding.root.context.alertInternet(binding.root.context)
