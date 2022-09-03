@@ -2,17 +2,16 @@ package com.app.myarticleapp.ui.adapters
 
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.app.myarticleapp.apiSource.responseEntity.Result
 import com.app.myarticleapp.databinding.ArticleListItemBinding
+import com.app.myarticleapp.utils.dateFormater.FormatDate.getFormattedFullDateString
 import com.bumptech.glide.Glide
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import java.lang.Exception
 
 
 class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClickListener):
@@ -55,17 +54,21 @@ class ArticleAdapter (private  val listItem: List<Result>, listener: OnItemClick
     override fun onBindViewHolder(holder: WeatherViewModel, position: Int) {
         with(holder){
             with(items[position]){
-
-                // for time
-                val time = Date(System.currentTimeMillis())
-                val  timeFormat = (SimpleDateFormat("HH:mm aaa", Locale.ENGLISH).format(time))
                 binding.title.text = title
+                binding.source.text = source
                 binding.date.text = publishedDate
 
                 media.forEach { media ->
-                    Glide.with(itemView.context)
-                        .load(media.mediaMetadata[0].url)
-                        .into(binding.shapeableImageView)
+                     media.mediaMetadata.let {image ->
+                        try {
+                            Glide.with(itemView.context)
+                                .load(image[2].url)
+                                .into(binding.shapeableImageView)
+                        }catch (ex: Exception){
+                            Log.i("out of bound", "${ex.printStackTrace()}")
+                        }
+                    }
+
                 }
 
                 itemView.setOnClickListener {
