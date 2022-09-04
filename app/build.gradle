@@ -3,7 +3,10 @@ plugins {
     id 'kotlin-android'
     id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
+    id "org.sonarqube"
+    id 'com.hiya.jacoco-android'
 }
+
 
 android {
     compileSdk 32
@@ -21,12 +24,17 @@ android {
         properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
         buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
+
+
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled = true
         }
     }
     compileOptions {
@@ -39,10 +47,13 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+
 }
 
 dependencies {
 
+    compileOnly 'com.github.pengrad:jdk9-deps:1.0'
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
@@ -56,8 +67,6 @@ dependencies {
 
 
     implementation "com.google.dagger:hilt-android:2.38.1"
-    androidTestImplementation 'androidx.test:rules:1.4.1-alpha07'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.0-alpha07'
     kapt "com.google.dagger:hilt-compiler:2.38.1"
 
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
@@ -82,9 +91,61 @@ dependencies {
 
     //for test
     testImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation 'androidx.test:rules:1.4.1-alpha07'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.4.0'
 
     // Coroutine Testing
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1"
     testImplementation "org.mockito:mockito-core:3.3.3"
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
+    testImplementation "org.jacoco:org.jacoco.agent:0.8.5"
+
+
 }
+
+configurations.all{
+    resolutionStrategy {
+        eachDependency { details ->
+            if ('org.jacoco' == details.requested.group) {
+                details.useVersion "0.8.7"
+            }
+        }
+    }
+}
+
+
+sonarqube {
+    properties {
+        def libraries = project.android.sdkDirectory.getPath() + "/platforms/android-23/android.jar"
+        property "sonar.projectName", "MyProject"
+        property "sonar.projectKey", "com.app.myarticleapp"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.language", "java"
+        property "sonar.sources", "src/main/"
+        property "sonar.login", "admin"
+        property "sonar.password", ""
+
+        property "sonar.binaries", "build/intermediates/classes/debug"
+        property "sonar.libraries", libraries
+        property "sonar.test", "src/test/java, src/androidTest/java"
+        property "sonar.java.test.binaries", "build/intermediates/class/debug"
+        property "sonar.java.test.libraries", libraries
+        property "sonar.jacoco.reportPath", "build/jacoco/testDebugUnitTest.exec"
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.junit.reportsPath", "build/test-results/debug"
+        property "sonar.android.lint.report", "build/outputs/lint-results"
+
+
+
+    }
+    jacoco {
+        toolVersion = "0.8.8"
+        reportsDirectory.set(layout.buildDirectory.dir("customJacocoReportDir"))
+    }
+
+}
+

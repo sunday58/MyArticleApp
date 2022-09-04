@@ -8,7 +8,6 @@
     <string name="internet_issues">No internet connection</string>
     <string name="article_key">zR3cNieqfQAuLsmyDxbRpoEhbVnOF9cT</string>
     <string name="offline">Offline</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="select_news_duration">Select News Duration</string>
     <string name="recent_articles">Recent Articles</string>

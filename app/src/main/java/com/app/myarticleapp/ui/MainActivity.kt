@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity(), ArticleAdapter.OnItemClickListener, Re
                 is DataState.Success<ArticleResponse> -> {
                     initRecentAdapter(dataState.data.results)
                 }
-                else -> {}
+                else -> {Log.d("info", "do nothing")}
             }
         }
     }
