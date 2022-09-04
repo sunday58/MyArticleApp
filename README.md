@@ -16,6 +16,7 @@ An app that displays list of Popular articles from The New York Times
 * Glide
 * Junit
 * Espresso
+* SonarQube
 
 
 # How to Install and Run MyArticleApp
